@@ -13,9 +13,13 @@ class AppBlocking extends StatelessWidget {
       appBar: MyAppBar(
         title: 'APP BLOCKING',
       ),
-      body: Container(
-          alignment: Alignment.center,
-          child: TextButton(onPressed: (){}, child: Text('example')),
+      body: ListView(
+        children: [
+          AddAppList(),
+          AppListDesign(appName: 'winter photo1'),
+          AppListDesign(appName: 'winter photo2'),
+          AppListDesign(appName: 'winter photo3'),
+        ],
       ),
 
       bottomNavigationBar: MyBottomAppBar(),

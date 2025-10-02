@@ -5,6 +5,7 @@ import 'package:discipline/book.dart';
 import 'package:discipline/main.dart';
 import 'package:discipline/app_blocking.dart';
 import 'package:provider/provider.dart';
+import 'package:discipline/installedApps.dart';
 
 const Color mainColor = Colors.black54;
 const double myAppBarHeight = 80.0;
@@ -106,6 +107,7 @@ class SideBar extends StatelessWidget {
     // Color objectDarkMode = darkMode.isDark ? Color.fromRGBO(202, 196, 208, 1) : Color.fromRGBO(73, 69, 79, 1);
     // Color backgroundDarkMode = darkMode.isDark ? Color.fromRGBO(73, 69, 79, 1) : Color.fromRGBO(202, 196, 208, 1);
 
+    //drawer == side bar
     return Drawer(
       child: ListView(
         //important: removed all padding on ListView
@@ -143,3 +145,83 @@ class SideBar extends StatelessWidget {
       );
   }
 }
+
+//app list tile design
+class AppListDesign extends StatelessWidget {
+  final String appName;
+
+  const AppListDesign({
+    super.key,
+    required this.appName,
+  });
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Container(
+        height: 150,
+        width: 150,
+        margin: EdgeInsets.all(10),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  'assets/winter.jpg',
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 7,
+              child: SizedBox(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Center(child: Text(appName)),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: TextButton(onPressed: (){}, child: Text('blocking on / off button')),
+                    ),
+                    Expanded(
+                      flex: 3,
+                      child: TextButton(onPressed: (){}, child: Text('blocking time setting button')),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// add app list tile design
+class AddAppList extends StatelessWidget {
+  const AddAppList({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: SizedBox(
+        height: 100,
+        child: Expanded(
+          child: TextButton(
+            onPressed: (){},
+            child: Text('ADD APP'),
+          ),
+        ),
+      ),
+    );
+  }
+}
+

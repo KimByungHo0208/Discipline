@@ -136,7 +136,7 @@ class _CalendarState extends State<Calendar> {
           TableCalendar<Event>(
             locale: 'ko_KR',
             firstDay: DateTime.utc(2025, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
+            lastDay: DateTime.utc(2050, 12, 31),
             focusedDay: _focusedDay,
             eventLoader: _getEventsForDay,
             selectedDayPredicate: (day){

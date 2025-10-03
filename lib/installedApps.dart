@@ -1,6 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:discipline/app_info.dart';
 
+List<String> CheckedAppList = [];
+
 class InstalledApps {
 
   // communication with native by method channel

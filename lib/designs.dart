@@ -5,6 +5,7 @@ import 'package:discipline/book.dart';
 import 'package:discipline/main.dart';
 import 'package:discipline/app_blocking.dart';
 import 'package:provider/provider.dart';
+import 'package:discipline/registering_app.dart';
 import 'package:discipline/installedApps.dart';
 
 const Color mainColor = Colors.black54;
@@ -146,22 +147,22 @@ class SideBar extends StatelessWidget {
   }
 }
 
-//app list tile design
-class AppListDesign extends StatelessWidget {
-  final String appName;
+// app list tile design
+class AppListDesign extends StatefulWidget {
+  const AppListDesign({super.key});
 
-  const AppListDesign({
-    super.key,
-    required this.appName,
-  });
+  @override
+  State<AppListDesign> createState() => _AppListDesignState();
+}
 
-
+class _AppListDesignState extends State<AppListDesign> {
+  TimeOfDay startTime = TimeOfDay.now();
+  TimeOfDay? endTime;
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Container(
         height: 150,
-        width: 150,
         margin: EdgeInsets.all(10),
         child: Row(
           children: [
@@ -184,7 +185,7 @@ class AppListDesign extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: Center(child: Text(appName)),
+                      child: Center(child: Text('app name')),
                     ),
                     Expanded(
                       flex: 3,
@@ -192,7 +193,29 @@ class AppListDesign extends StatelessWidget {
                     ),
                     Expanded(
                       flex: 3,
-                      child: TextButton(onPressed: (){}, child: Text('blocking time setting button')),
+                      child: TextButton(onPressed: () async {
+                        // setting start time and end time
+                        final TimeOfDay? startTimeOfDay = await showTimePicker(
+                          context: context,
+                          initialTime: startTime,
+                        );
+
+                        // 위젯이 사라졌다면 context 사용 x
+                        // await or async를 사용하면 중간에 프레임워크가 위젯을 지워버릴 수도 있는데
+                        // 이때 다시 context를 불러오면 크래시가 날 수 있기 때문
+                        if(!mounted) return;
+
+                        final TimeOfDay? endTimeOfDay = await showTimePicker(
+                          context: context,
+                          initialTime: TimeOfDay.now(),
+                        );
+                        if (startTimeOfDay != null && endTimeOfDay != null) {
+                          setState(() {
+                            startTime = startTimeOfDay;
+                            endTime = endTimeOfDay;
+                          });
+                        }
+                      }, child: Text(endTime == null ? '00 : 00 ~ 00 : 00' : '${startTime.hour} : ${startTime.minute} ~ ${endTime?.hour} : ${endTime?.minute}')),
                     ),
                   ],
                 ),
@@ -216,7 +239,9 @@ class AddAppList extends StatelessWidget {
         height: 100,
         child: Expanded(
           child: TextButton(
-            onPressed: (){},
+            onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => RegisteringAppPage()));
+            },
             child: Text('ADD APP'),
           ),
         ),
@@ -225,3 +250,64 @@ class AddAppList extends StatelessWidget {
   }
 }
 
+// registering app tile design
+class RegisteringAppDesign extends StatefulWidget {
+  const RegisteringAppDesign({super.key});
+
+  @override
+  State<RegisteringAppDesign> createState() => _RegisteringAppDesignState();
+}
+
+class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
+  bool checked = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Container(
+        height: 150,
+        margin: EdgeInsets.all(10),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  'assets/winter.jpg',
+                  fit: BoxFit.fill,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 7,
+              child: SizedBox(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex : 5,
+                      child: Center(child:Text('app name'))),
+                    Expanded(
+                      flex: 5,
+                      child: IconButton(
+                        onPressed: (){
+                          setState(() {
+                            CheckedAppList.add('app name');
+                            checked ? checked = false : checked = true;
+                          });
+                        },
+                        icon: checked ? Icon(Icons.check_circle_outline) : Icon(Icons.add_circle_outline),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

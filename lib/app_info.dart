@@ -6,6 +6,7 @@ class AppInfo {
   String packageName;
   BuiltWith builtWith;
   int installedTimestamp;
+  bool isChecked;
 
   AppInfo({
     required this.name,
@@ -13,6 +14,7 @@ class AppInfo {
     required this.packageName,
     required this.builtWith,
     required this.installedTimestamp,
+    required this.isChecked,
   });
 
   factory AppInfo.create(dynamic data) {
@@ -22,6 +24,7 @@ class AppInfo {
       packageName: data["package_name"],
       builtWith: parseBuiltWith(data["built_with"]),
       installedTimestamp: data["installed_timestamp"] ?? 0,
+      isChecked : false,
     );
   }
 
@@ -36,6 +39,7 @@ class AppInfo {
         )
         .map((app) => AppInfo.create(app))
         .toList();
+    appInfoList.sort((a, b) => a.name.compareTo(b.name));
     return appInfoList;
   }
 

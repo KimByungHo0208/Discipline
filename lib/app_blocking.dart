@@ -6,16 +6,17 @@ class AppBlocking extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       appBar: MyAppBar(
         title: 'APP BLOCKING',
       ),
-      body: ListView(
+      body: Column(
         children: [
           AddAppList(),
-          AppListDesign(),
-          AppListDesign(),
-          AppListDesign(),
+          Expanded(
+            child: AppListDesign(),
+          ),
         ],
       ),
 

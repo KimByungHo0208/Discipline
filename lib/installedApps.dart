@@ -1,7 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:discipline/app_info.dart';
 
-List<String> CheckedAppList = [];
+List<AppInfo> checkedAppList = [];
+int checkedAppCount = 0;
 
 class InstalledApps {
 
@@ -11,7 +12,7 @@ class InstalledApps {
   // get installed app's information and return to list
   static Future<List <AppInfo>> getInstalledApps([
     bool excludeSystemApps = true,
-    bool withIcon = false,
+    bool withIcon = true,
     String packageNamePrefix = "",
     BuiltWith platformType = BuiltWith.flutter,
   ]) async {

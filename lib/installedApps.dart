@@ -1,9 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:discipline/app_info.dart';
 
-List<AppInfo> checkedAppList = [];
-int checkedAppCount = 0;
-
 class InstalledApps {
 
   // communication with native by method channel
@@ -57,17 +54,18 @@ class InstalledApps {
 
   // get app info
   // Since you saved it as map, you can get the app info if you know the package name
-  static Future<AppInfo?> getAppInfo(String packageName, BuiltWith? platformType,) async {
+  static Future<AppInfo?> getAppInfo(String packageName) async {
     var app = await _channel.invokeMethod(
       "getAppInfo",
       {
         "package_name" : packageName,
-        "Built_with" : platformType?.name ?? '',
       }
     );
     if(app == null){
+      print(" ============= this app is null ===================");
       return null;
     }else{
+      print(" ============= this app is not null ===================");
       return AppInfo.create(app);
     }
   }

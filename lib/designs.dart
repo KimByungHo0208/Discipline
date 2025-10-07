@@ -217,6 +217,24 @@ class AppListDesign extends StatefulWidget {
 class _AppListDesignState extends State<AppListDesign> {
   TimeOfDay startTime = TimeOfDay.now();
   TimeOfDay? endTime;
+  List<AppInfo?> loadedApps = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadAppListFromPrefs();
+    _loadApps();
+  }
+
+  void _loadApps() async {
+    for (var pkg in checkedAppList) {
+      AppInfo? appInfo = await InstalledApps.getAppInfo(pkg.packageName);
+      loadedApps.add(appInfo);
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +247,7 @@ class _AppListDesignState extends State<AppListDesign> {
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: checkedAppList.length,
+              itemCount: loadedApps.length,
               itemBuilder: (context, index) {
                 return Card(
                   child: Container(
@@ -242,9 +260,9 @@ class _AppListDesignState extends State<AppListDesign> {
                           fit: FlexFit.loose,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: checkedAppList[index].icon != null
+                            child: loadedApps[index]?.icon != null
                                 ? Image(
-                              image: MemoryImage(checkedAppList[index].icon!),
+                              image: MemoryImage(loadedApps[index]!.icon!),
                               fit: BoxFit.fill,
                             )
                                 : Icon(Icons.apps, size: iconSize),
@@ -261,7 +279,7 @@ class _AppListDesignState extends State<AppListDesign> {
                                 SizedBox(
                                   height: 50,
                                   child: Center(
-                                      child: Text(checkedAppList[index].name)),
+                                      child: Text(loadedApps[index]?.name ?? " ")),
                                 ),
                                 SizedBox(
                                   height: 50,
@@ -357,7 +375,6 @@ class RegisteringAppDesign extends StatefulWidget {
 }
 
 class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
-  List<AppInfo> apps = [];
   bool isLoading = true;
 
   @override
@@ -367,19 +384,20 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
   }
 
   void loading() async {
-    if (apps.isNotEmpty) {
+    if (allApps.isNotEmpty) {
       setState(() {
         isLoading = false;
       });
       return;
     }
-    apps = await InstalledApps.getInstalledApps();
+    allApps = await InstalledApps.getInstalledApps();
     setState(() {
       isLoading = false;
     });
   }
 
   void _saveAppList(){
+    saveAppListToPrefs();
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => AppBlocking()),
@@ -405,7 +423,7 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: apps.length,
+            itemCount: allApps.length,
             itemBuilder: (context, index) {
               return Card(
                 child: Container(
@@ -418,9 +436,9 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
                         fit: FlexFit.loose,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(10),
-                          child: apps[index].icon != null
+                          child: allApps[index].icon != null
                               ? Image(
-                                  image: MemoryImage(apps[index].icon!),
+                                  image: MemoryImage(allApps[index].icon!),
                                   fit: BoxFit.fill,
                                 )
                               : Icon(Icons.apps, size: iconSize),
@@ -437,7 +455,7 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
                               Flexible(
                                 flex: 5,
                                 fit: FlexFit.loose,
-                                child: Center(child: Text(apps[index].name)),
+                                child: Center(child: Text(allApps[index].name)),
                               ),
                               Flexible(
                                 flex: 5,
@@ -445,19 +463,24 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
                                 child: IconButton(
                                   onPressed: () {
                                     setState(() {
-                                      checkedAppList.add(apps[index]); //번호랑 숫자 세는게 다름
+                                      if(allApps[index].isChecked){
+                                        allApps[index].isChecked = false;
+                                        checkedAppList.removeWhere((element)=> element.packageName == allApps[index].packageName);
+                                      }
+                                      else{
+                                        allApps[index].isChecked = true;
+                                        checkedAppList.add(CheckedRegistering(allApps[index].packageName, true));
+                                      }
+                                       //번호랑 숫자 세는게 다름
                                       print('index : $index');
-                                      apps[index].isChecked
-                                          ? apps[index].isChecked = false
-                                          : apps[index].isChecked = true;
-                                      // print('name : ${apps[index].name}, icon : ${apps[index].icon}');
-                                      // print('package name : ${apps[index].packageName}, builtWith : ${apps[index].builtWith}');
-                                      // print('installed time : ${apps[index].installedTimestamp}');
-                                      print('name : ${checkedAppList[checkedAppCount].name}, checkedAppCount : $checkedAppCount, length : ${checkedAppList.length}'); //exception >> RangeError (length): Invalid value: Only valid value is 0: 1
+                                      // print('name : ${allApps[index].name}, icon : ${allApps[index].icon}');
+                                      // print('package name : ${allApps[index].packageName}, builtWith : ${allApps[index].builtWith}');
+                                      // print('installed time : ${allApps[index].installedTimestamp}');
+                                      print('name : ${allApps[index].name}, checkedAppCount : $checkedAppCount, length : ${checkedAppList.length}'); //exception >> RangeError (length): Invalid value: Only valid value is 0: 1
                                       checkedAppCount++;
                                     });
                                   },
-                                  icon: apps[index].isChecked
+                                  icon: allApps[index].isChecked
                                       ? Icon(Icons.check_circle_outline)
                                       : Icon(Icons.add_circle_outline),
                                 ),

@@ -5,6 +5,7 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
+//eventsKey라는 이름으로 calendar events를 저장
 const String _eventsKey = 'calendar_events_data';
 
 //marker 위치
@@ -32,6 +33,7 @@ Future<void> saveEventsToPrefs() async{
   final prefs = await SharedPreferences.getInstance(); //인스턴스 가져오기
   Map<String, List<Map<String, dynamic>>> jsonEvents = {};
   events.forEach((dateTime, eventList){
+    // toIso8601String() >> TimeDate to String
     jsonEvents[dateTime.toIso8601String()] = eventList.map((event) => event.toJson()).toList();
   });
   try{

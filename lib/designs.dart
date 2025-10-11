@@ -123,6 +123,9 @@ class MyBottomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 context,
                 MaterialPageRoute(builder: (context) => AppBlocking()),
               );
+              // print('all apps length : ${allApps.length}');
+              // print('checked apps list length : ${checkedAppList.length}');
+              // print('during time length : ${duringTime.length}');
             },
             icon: Icon(
               Icons.app_blocking,
@@ -208,15 +211,18 @@ class SideBar extends StatelessWidget {
 // app list tile design
 class AppListDesign extends StatefulWidget {
 
-  const AppListDesign({Key? key}) : super(key: key);
+  const AppListDesign({super.key});
 
   @override
   State<AppListDesign> createState() => _AppListDesignState();
 }
 
 class _AppListDesignState extends State<AppListDesign> {
-  TimeOfDay startTime = TimeOfDay.now();
+  TimeOfDay startTime = const TimeOfDay(hour:0, minute: 0);
   TimeOfDay? endTime;
+  //loaded apps list를 만든 이유? >> checked app list는 checked registering 객체의 리스트인데
+  //checked app list를 사용하면 icon등을 직접적으로 못 불러옴
+  //따라서 객체를 다시 만들어줘서 icon등을 다시 불러와줘야함
   List<AppInfo?> loadedApps = [];
 
   @override
@@ -231,9 +237,21 @@ class _AppListDesignState extends State<AppListDesign> {
       AppInfo? appInfo = await InstalledApps.getAppInfo(pkg.packageName);
       loadedApps.add(appInfo);
     }
+    // mounted 위젯이 화면에 존재하는지 여부
     if (mounted) {
       setState(() {});
     }
+  }
+
+  void _clearAllApps(){
+    for(var a in allApps){
+      a.isChecked = false;
+    }
+    checkedAppList.clear();
+    duringTime.clear();
+    saveAppListToPrefs();
+    print('clear button');
+    setState(() {});
   }
 
   @override
@@ -296,6 +314,7 @@ class _AppListDesignState extends State<AppListDesign> {
                                       final TimeOfDay? startTimeOfDay =
                                       await showTimePicker(
                                         context: context,
+                                        barrierLabel: "start time",
                                         initialTime: startTime,
                                       );
 
@@ -306,22 +325,27 @@ class _AppListDesignState extends State<AppListDesign> {
 
                                       final TimeOfDay? endTimeOfDay = await showTimePicker(
                                         context: context,
+                                        barrierLabel: "end time",
                                         initialTime: TimeOfDay.now(),
                                       );
-                                      if (startTimeOfDay != null &&
+                                      if (startTimeOfDay != TimeOfDay.now() &&
                                           endTimeOfDay != null) {
                                         setState(() {
-                                          startTime = startTimeOfDay;
-                                          endTime = endTimeOfDay;
+                                          duringTime[loadedApps[index]?.packageName] = [startTimeOfDay!,endTimeOfDay];
+                                          saveAppListToPrefs();
                                         });
                                       }
+                                      print('loaded apps : ${loadedApps[index]?.packageName ?? "null name"}');
+                                      //print('checked app list : ${checkedAppList[index].packageName}');
+                                      print('during start time , endtime : ${duringTime[loadedApps[index]?.packageName]}');
                                     },
                                     child: Text(
-                                      endTime == null
+                                      duringTime[loadedApps[index]?.packageName] == null
                                           ? '00 : 00 ~ 00 : 00'
-                                          : '${startTime.hour} : ${startTime
-                                          .minute} ~ ${endTime
-                                          ?.hour} : ${endTime?.minute}',
+                                          : '${duringTime[loadedApps[index]?.packageName]!.first.hour} : '
+                                          '${duringTime[loadedApps[index]?.packageName]!.first.minute} ~ '
+                                          '${duringTime[loadedApps[index]?.packageName]!.last.hour} : '
+                                          '${duringTime[loadedApps[index]?.packageName]!.last.minute}',
                                     ),
                                   ),
                                 ),
@@ -334,6 +358,18 @@ class _AppListDesignState extends State<AppListDesign> {
                   ),
                 );
               },
+            ),
+          ),
+          Card(
+            child: SizedBox(
+              height: 100,
+              width: double.infinity,
+              child: TextButton(
+                onPressed: () {
+                  _clearAllApps();
+                },
+                child: Text('CLEAR ALL'),
+              ),
             ),
           ),
         ],
@@ -417,7 +453,7 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
             width: double.infinity,
             child: TextButton(
               onPressed: _saveAppList, // 위에서 정의한 함수를 연결합니다.
-              child: Text('Save APP'),
+              child: Text('SAVE APP'),
             ),
           ),
         ),
@@ -469,15 +505,15 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
                                       }
                                       else{
                                         allApps[index].isChecked = true;
-                                        checkedAppList.add(CheckedRegistering(allApps[index].packageName, true));
+                                        checkedAppList.add(CheckedRegistering(allApps[index].packageName, true,));
                                       }
-                                       //번호랑 숫자 세는게 다름
-                                      print('index : $index');
+                                      //번호랑 숫자 세는게 다름
+                                      // print('index : $index');
                                       // print('name : ${allApps[index].name}, icon : ${allApps[index].icon}');
                                       // print('package name : ${allApps[index].packageName}, builtWith : ${allApps[index].builtWith}');
                                       // print('installed time : ${allApps[index].installedTimestamp}');
-                                      print('name : ${allApps[index].name}, checkedAppCount : $checkedAppCount, length : ${checkedAppList.length}'); //exception >> RangeError (length): Invalid value: Only valid value is 0: 1
-                                      checkedAppCount++;
+                                      // print('name : ${allApps[index].name}, checkedAppCount : $checkedAppCount, length : ${checkedAppList.length}'); //exception >> RangeError (length): Invalid value: Only valid value is 0: 1
+                                      //checkedAppCount++;
                                     });
                                   },
                                   icon: allApps[index].isChecked

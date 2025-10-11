@@ -11,7 +11,7 @@ class InstalledApps {
     bool excludeSystemApps = true,
     bool withIcon = true,
     String packageNamePrefix = "",
-    BuiltWith platformType = BuiltWith.flutter,
+    //BuiltWith platformType = BuiltWith.flutter,
   ]) async {
     dynamic apps = await _channel.invokeMethod(
       "getInstalledApps",
@@ -19,7 +19,7 @@ class InstalledApps {
         "exclude_system_apps" : excludeSystemApps,
         "with_icon" : withIcon,
         "package_name_prefix" : packageNamePrefix,
-        "platform_type" : platformType.name,
+        //"platform_type" : platformType.name,
       }
     );
     return AppInfo.parseList(apps);
@@ -62,10 +62,8 @@ class InstalledApps {
       }
     );
     if(app == null){
-      print(" ============= this app is null ===================");
       return null;
     }else{
-      print(" ============= this app is not null ===================");
       return AppInfo.create(app);
     }
   }

@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:discipline/registering_app.dart';
 import 'package:discipline/app_info.dart';
 import 'package:discipline/installedApps.dart';
+import 'package:discipline/dark_mode.dart';
 
 const Color mainColor = Colors.black54;
 const double myAppBarHeight = 80.0;
@@ -208,7 +209,7 @@ class SideBar extends StatelessWidget {
   }
 }
 
-// app list tile design
+// app blocking main page design
 class AppListDesign extends StatefulWidget {
 
   const AppListDesign({super.key});
@@ -402,7 +403,7 @@ class AddAppList extends StatelessWidget {
   }
 }
 
-// registering app tile design
+// registering app main page design
 class RegisteringAppDesign extends StatefulWidget {
   const RegisteringAppDesign({super.key});
 

@@ -13,27 +13,17 @@ class BlockingScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Text('BLOCKING SCREEN'),
-              // TextButton(
-              //   onPressed: () {
-              //     Navigator.pushReplacement(
-              //       context,
-              //       MaterialPageRoute(builder: (context) => MyApp()),
-              //     );
-              //   },
-              //   child: Text('GO TO MAIN'),
-              // ),
               Flexible(
                 flex: 5,
                 fit: FlexFit.loose,
-                child: Container(
-                  height: 300,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.red,
-                  ),
-                  child: Center(child: Text('APP ICON', style: TextStyle(color: mainColor))),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image(
+                    height: 300,
+                    width: 300,
+                    image: AssetImage('assets/winter.jpg'),
+                    fit: BoxFit.fill,
+                  )
                 ),
               ),
               Flexible(
@@ -41,8 +31,7 @@ class BlockingScreen extends StatelessWidget {
                 fit: FlexFit.loose,
                 child: Container(
                   alignment: Alignment.center,
-                  color: Colors.blue,
-                  child: Text('BLOCKING SCREEN'),
+                  child: Text('YOU TRIED TO OPEN BLOCKED APP \n\n LIVE YOUR LIFE', style: TextStyle(fontSize: 30), textAlign: TextAlign.center,),
                 ),
               ),
               Flexible(
@@ -50,14 +39,14 @@ class BlockingScreen extends StatelessWidget {
                 fit: FlexFit.loose,
                 child: Container(
                   margin: EdgeInsets.only(top: 80),
-                  height: 100,
-                  width: 300,
+                  height: 80,
+                  width: 240,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: Colors.yellow,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Center(child: Text('CLOSE', style: TextStyle(color: mainColor))),
+                  child: Center(child: Text('CLOSE BUTTON', style: TextStyle(color: mainColor, fontSize: 30))),
                 ),
               ),
             ],
@@ -67,3 +56,13 @@ class BlockingScreen extends StatelessWidget {
     );
   }
 }
+// 사용자가 직접 설정화면으로 이동하는 코드
+// import 'package:device_apps/device_apps.dart';
+// import 'package:android_intent_plus/android_intent.dart';
+// import 'package:android_intent_plus/flag.dart';
+//
+// Future<void> requestUsageAccessPermission() async {
+//   const intent = AndroidIntent(
+//     action: 'android.settings.USAGE_ACCESS_SETTINGS',
+//   );
+//   await intent.launch();

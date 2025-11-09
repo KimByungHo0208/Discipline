@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:discipline/saved_appdata_list.dart';
 import 'package:discipline/site_blocking.dart';
 import 'package:discipline/calendar.dart';
 import 'package:discipline/book.dart';
 import 'package:discipline/main.dart';
 import 'package:discipline/app_blocking.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:provider/provider.dart';
 import 'package:discipline/registering_app.dart';
 import 'package:discipline/app_info.dart';
@@ -159,6 +162,7 @@ class SideBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final service = FlutterBackgroundService();
     //나중에
     //final darkMode = Provider.of<DarkMode>(context);
     // Color objectDarkMode = darkMode.isDark ? Color.fromRGBO(202, 196, 208, 1) : Color.fromRGBO(73, 69, 79, 1);
@@ -186,15 +190,28 @@ class SideBar extends StatelessWidget {
           ),
           //add list
           ListTile(
-            title: Text('LIST 1', style: TextStyle(color: Colors.blue)),
+            title: Text('View saved data', style: TextStyle(color: Colors.blue)),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => SavedAppDataList(),
+                ),
+              );
             },
           ),
           ListTile(
-            title: Text('LIST 2', style: TextStyle(color: Colors.green)),
-            onTap: () {
-              Navigator.pop(context);
+            title: Text('background service on / off', style: TextStyle(color: Colors.green)),
+            onTap: () async {
+              bool isRunning = await service.isRunning();
+              if(isRunning){
+                service.invoke("stopService");
+                print('background service is off');
+              }else{
+                service.startService();
+                service.invoke('setAsForeground');
+                print('background service is on');
+              }
             },
           ),
           ListTile(
@@ -237,6 +254,7 @@ class _AppListDesignState extends State<AppListDesign> {
     for (var pkg in checkedAppList) {
       AppInfo? appInfo = await InstalledApps.getAppInfo(pkg.packageName);
       loadedApps.add(appInfo);
+      blockingApps.add(appInfo?.packageName);
     }
     // mounted 위젯이 화면에 존재하는지 여부
     if (mounted) {
@@ -251,7 +269,8 @@ class _AppListDesignState extends State<AppListDesign> {
     checkedAppList.clear();
     duringTime.clear();
     saveAppListToPrefs();
-    print('clear button');
+    FlutterBackgroundService().invoke("stopService");
+    print('clear button : no foreground service');
     setState(() {});
   }
 
@@ -303,8 +322,23 @@ class _AppListDesignState extends State<AppListDesign> {
                                 SizedBox(
                                   height: 50,
                                   child: TextButton(
-                                    onPressed: () {},
-                                    child: Text('blocking on / off button'),
+                                    onPressed: () {
+                                      setState(() {
+                                        if(checkedAppList[index].onBlocking){
+                                          blockingApps.remove(checkedAppList[index].packageName);
+                                          checkedAppList[index].onBlocking = false;
+                                          saveAppListToPrefs();
+                                        }else{
+                                          blockingApps.add(checkedAppList[index].packageName);
+                                          checkedAppList[index].onBlocking = true;
+                                          saveAppListToPrefs();
+                                        }
+                                      });
+                                    },
+                                    child: Text(
+                                        checkedAppList[index].onBlocking ? 'blocking on' : 'blocking off',
+                                      style: TextStyle(color: checkedAppList[index].onBlocking ? Colors.orange : Colors.lightBlue),
+                                    ),
                                   ),
                                 ),
                                 SizedBox(
@@ -412,6 +446,7 @@ class RegisteringAppDesign extends StatefulWidget {
 }
 
 class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
+  final MethodChannel blockingChannel = const MethodChannel('blocking_channel');
   bool isLoading = true;
 
   @override
@@ -434,6 +469,15 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
   }
 
   void _saveAppList(){
+    if(checkedAppList.isNotEmpty){
+      FlutterBackgroundService().invoke("setAsForeground");
+      FlutterBackgroundService().invoke('monitoring');
+      print('start foreground service');
+      print('start monitoring');
+    }else{
+      FlutterBackgroundService().invoke("stopService");
+      print('no foreground service');
+    }
     saveAppListToPrefs();
     Navigator.push(
       context,
@@ -506,7 +550,7 @@ class _RegisteringAppDesignState extends State<RegisteringAppDesign> {
                                       }
                                       else{
                                         allApps[index].isChecked = true;
-                                        checkedAppList.add(CheckedRegistering(allApps[index].packageName, true,));
+                                        checkedAppList.add(CheckedRegistering(allApps[index].packageName, true, true));
                                       }
                                       //번호랑 숫자 세는게 다름
                                       // print('index : $index');

@@ -9,19 +9,26 @@ const String _duringTimeKey = 'during_time_data';
 
 // 지금 깔려있는 전체 앱들
 List<AppInfo> allApps = [];
+// blocking 하겠다고 체크한 앱들
 List<CheckedRegistering> checkedAppList = [];
+// 체크한 앱들의 사용 제한 시간
 Map<String?, List<TimeOfDay>> duringTime = {};
+// 체크한 앱들 중에서 blocking을 할것들만 모음
+List<String?> blockingApps = [];
+
 
 // 체크 되었는지를 저장할 객체
 class CheckedRegistering{
   String packageName;
   bool checked = false;
-  CheckedRegistering(this.packageName, this.checked,);
+  bool onBlocking = false;
+  CheckedRegistering(this.packageName, this.checked, this.onBlocking);
 
   // app info bool >> json
   Map<String, dynamic> toJson()=>{
     'packageName' : packageName,
     'checked' : checked,
+    'onBlocking' : onBlocking,
   };
 
   //json >> app info element
@@ -29,6 +36,7 @@ class CheckedRegistering{
     return CheckedRegistering(
       json['packageName'] as String,
       json['checked'] as bool,
+      json['onBlocking'] as bool,
     );
   }
 }

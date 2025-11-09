@@ -31,7 +31,7 @@ class BlockingScreen extends StatelessWidget {
                 fit: FlexFit.loose,
                 child: Container(
                   alignment: Alignment.center,
-                  child: Text('YOU TRIED TO OPEN BLOCKED APP \n\n LIVE YOUR LIFE', style: TextStyle(fontSize: 30), textAlign: TextAlign.center,),
+                  child: Text('넌 또 나약해지려하고 있어.\n 정신차려.', style: TextStyle(fontSize: 30), textAlign: TextAlign.center,),
                 ),
               ),
               Flexible(

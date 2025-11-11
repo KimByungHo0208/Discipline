@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:discipline/background_app_monitoring.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -21,6 +23,7 @@ void main() async {
   );
   await initializeDateFormatting();
   await initializeService();
+  DartPluginRegistrant.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
